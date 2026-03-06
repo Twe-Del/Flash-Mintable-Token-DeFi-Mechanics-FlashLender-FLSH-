@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Snapshot.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+// Мы жестко прописываем версию @4.9.3 в ссылках, чтобы избежать конфликтов с версией 5.0
+import "@openzeppelin/contracts@4.9.3/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts@4.9.3/token/ERC20/extensions/ERC20Snapshot.sol";
+import "@openzeppelin/contracts@4.9.3/access/Ownable.sol";
 
 contract SnapshotToken is ERC20, ERC20Snapshot, Ownable {
-    constructor() ERC20("SnapshotToken", "SNAP") Ownable(msg.sender) {
+    // В версии 4.x Ownable автоматически назначает создателя владельцем, передавать msg.sender не нужно
+    constructor() ERC20("SnapshotToken", "SNAP") {
         _mint(msg.sender, 1000000 * 10 ** decimals());
     }
 
@@ -14,7 +16,11 @@ contract SnapshotToken is ERC20, ERC20Snapshot, Ownable {
         _snapshot();
     }
 
-    function _update(address from, address to, uint256 value) internal override(ERC20, ERC20Snapshot) {
-        super._update(from, to, value);
+    // В версии 4.x используется _beforeTokenTransfer вместо _update
+    function _beforeTokenTransfer(address from, address to, uint256 amount)
+        internal
+        override(ERC20, ERC20Snapshot)
+    {
+        super._beforeTokenTransfer(from, to, amount);
     }
 }
